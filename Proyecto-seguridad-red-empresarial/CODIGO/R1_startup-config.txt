@@ -1,0 +1,105 @@
+!
+version 15.1
+service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname R1
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+username R1 privilege 15 password 0 test
+!
+!
+license udi pid CISCO1941/K9 sn FTX1524NO5M-
+!
+!
+!
+!
+!
+!
+!
+!
+!
+ip domain-name latam.cl
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/0.10
+ description LAN_VLAN_10
+ encapsulation dot1Q 10
+ ip address 10.1.10.1 255.255.255.0
+!
+interface GigabitEthernet0/0.20
+ description LAN_VLAN_20
+ encapsulation dot1Q 20
+ ip address 10.1.20.1 255.255.255.0
+!
+interface GigabitEthernet0/1
+ ip address 200.200.200.1 255.255.255.248
+ duplex auto
+ speed auto
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+router ospf 500
+ router-id 1.1.1.1
+ log-adjacency-changes
+ passive-interface GigabitEthernet0/0
+ network 200.200.200.0 0.0.0.7 area 0
+ network 10.1.10.0 0.0.0.255 area 0
+ network 10.1.20.0 0.0.0.255 area 0
+!
+ip classless
+!
+ip flow-export version 9
+!
+!
+!
+no cdp run
+!
+!
+!
+!
+snmp-server community SNMP_R1 RW
+!
+logging trap debugging
+logging 10.1.20.15
+line con 0
+ password redes
+ login
+!
+line aux 0
+!
+line vty 0 4
+ login local
+ transport input ssh
+!
+!
+ntp server 10.1.2.20
+!
+end
+

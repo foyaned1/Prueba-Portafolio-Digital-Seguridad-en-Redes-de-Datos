@@ -1,0 +1,98 @@
+!
+version 15.1
+service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname R3
+!
+!
+!
+!
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+username R3 privilege 15 password 0 test
+!
+!
+license udi pid CISCO1941/K9 sn FTX15245G8K-
+!
+!
+!
+!
+!
+!
+!
+!
+!
+ip domain-name latam.cl
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ ip address 10.1.2.1 255.255.255.224
+ ip access-group 101 in
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/1
+ ip address 200.200.200.3 255.255.255.248
+ duplex auto
+ speed auto
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+router ospf 500
+ router-id 3.3.3.3
+ log-adjacency-changes
+ passive-interface GigabitEthernet0/0
+ network 200.200.200.0 0.0.0.7 area 0
+ network 10.1.2.0 0.0.0.31 area 0
+!
+ip classless
+!
+ip flow-export version 9
+!
+!
+access-list 101 deny tcp host 10.1.2.10 host 200.200.200.5 eq www
+access-list 101 deny tcp host 10.1.2.10 host 200.200.200.5 eq 443
+access-list 101 permit ip any any
+!
+no cdp run
+!
+!
+!
+!
+snmp-server community SNMP_R3 RW
+!
+logging trap debugging
+logging 10.1.20.15
+line con 0
+ password redes
+ login
+!
+line aux 0
+!
+line vty 0 4
+ login local
+ transport input ssh
+!
+!
+ntp server 10.1.2.20
+!
+end
+
