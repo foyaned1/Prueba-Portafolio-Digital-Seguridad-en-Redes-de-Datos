@@ -1,1 +1,81 @@
+Dentro de esta carpeta tenemos la simulación en aplicativo Cisco Packet Tracer, donde tenemos:
+
+=====================================================================================================================================================
+- Configuración básica y direccionamiento IP en base a las etiquetas visibles en la Topología.
+    Implementación protocolo SSH a los routers R1, R2, R3 y R4 para administración remota.
+        Username                : Nombre del router, según corresponda.
+        Password                : test 
+        Dominio                 : latam.cl
+        Password Line Console 0 : redes
+        Llave RSA               : 1024 bits
+    Comando de validación : ssh -l [username] [ip del router]
+    ------------------------------------------------------------------------------------------
+    Implementación direccionamiento IP.
+        R1 : Creación y configuración de subinterfaces para comunicar VLANs. 
+    Comando de validación : show run | begin int g0/0.
+                            show ip int br.
+        R2, R3 y R4 : Se encontraban configuradas.
+    Comando de validación : show ip int br.
+        Hosts finales : IP asignadas según etiquetas en topología y segmento de red asignado. 
+
+=====================================================================================================================================================
+- Configuración Switch S1 
+    VLANs: Según topología solo en el switch conectado a R1, asignando como puertos de acceso a los que se encuentran 
+    conectados a los dispositivos finales y como puerto troncal el puerto que se conecta a la interfaz del R1.
+    Comando de validación : show vlan br.
+                            show interfaces trunk.
+
+=====================================================================================================================================================
+- OSPF 
+    Se configuró OSPFv2 con ID 500, las subredes con su respectiva wildcard a nivel de IPv4 y la habilitación de interfaces pasivas.
+    Comandos de validación : TODOS LOS ROUTERS.  
+                             show run | begin router ospf.
+                             show ip ospf neighbor.
+                             show ip route ospf 
+
+=====================================================================================================================================================
+- NAT ESTÁTICO
+    Se pedía que la IP principal del servidor web 192.168.0.50 sea conocida por la dirección IP 200.200.200.5.
+    Comandos de validación: R1.
+                            ping [IP PUBLICA DEL SERVIDOR] desde cualquier dispositivo final.
+                            show ip nat traslations.
+
+=====================================================================================================================================================
+- Monitoreo NTP, SYSLOG y SNMP
+    NTP : Configuración del servidor NTP en todos los routers - ntp server [IP DEL SERVIDOR].
+    Comandos de validación : show ntp status - Debe aparece la palabra synchronized y apuntando hacia la IP del servidor NTP.
+                             show ntp associations.
+------------------------------------------------------------------------------------------------------------------------------------
+    SYSLOG : Configurar para poder centralizar los logs generados en los routers, en el servidor SYSLOG.
+    Comandos de verificación : show run | begin logging. 
+                               Revisar pestaña services > SYSLOG - La configuración tiene nivel de severidad 7, enviando cualquier nivel igual o inferior
+                                                                   de log directamente al servidor configurado previamente.
+------------------------------------------------------------------------------------------------------------------------------------
+    SNMP : Protocolo para administración y monitoreo de dispositivos de manera centralizada.
+    Comando de configuración en todos los routers : snmp-server community SNMP_[NOMBRE_ROUTER] RW.
+    Validación : En el servidor SNMP indicar IP del router. Tras eso, se podrá obtener información del dispositivo, como su nombre, interfaces, etc.
+
+======================================================================================================================================================
+- Configuración de servicios HTTP/DNS.
+    Parámetros a considerar : 200.200.200.5 - WWW.LATAM.CL.
+
+======================================================================================================================================================
+- Configuración de Listas de Acceso (ACL) con el fin de filtrar tráfico TCP/UDP hacia los puertos 80-http y 443-https desde PC2 hacia el servidor web
+  www.latam.cl.
+    R3 : G0/0 - Puerta de acceso de PC2 - Aqui gestionamos la ACL.
+    Comando de validación : show access-lists.
+
+======================================================================================================================================================
+- Implemnentación AP 
+    Seguridad WPA2 : red_test_ap
+======================================================================================================================================================
+
+Para más información, consultar el documento "Explicación-Paso-a-Paso-Seguridad en Red Empresarial"
+
+
+
+
+
+
+
 
