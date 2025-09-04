@@ -1,0 +1,22 @@
+
+Basado en el informe técnico adjunto, aquí una lista de los comandos utilizados y su función:
+
+- nano info.txt: Este comando se usó para crear el archivo de texto plano "info.txt".   
+
+- cat info.txt: Este comando se utilizó para visualizar el contenido del archivo "info.txt" en la terminal.
+
+- hping3 -1 -c 5 192.168.1.1: Este comando se usó para enviar 5 paquetes ICMP (ping normal). 
+  La opción -1 es para el tráfico ICMP y -c 5 especifica la cantidad de paquetes a enviar.   
+
+- hping3 -S -p 80 -c 5 192.168.1.1: Este comando se utilizó para enviar 5 paquetes TCP SYN al puerto 80.
+  La opción -S establece el flag SYN en el paquete y -p 80 apunta al puerto 80 (HTTP).   
+
+- hping3 -2 -p 53 -c 5 192.168.1.1: Este comando se usó para enviar 5 paquetes UDP al puerto 53 (DNS). 
+  La opción -2 es para el tráfico UDP. El informe aclara que el protocolo UDP no verifica la recepción de los paquetes.   
+
+- hping3 -S -p 80 -d $(stat -c%s info.txt) -E info.txt -c 1 192.168.1.1: 
+  Este comando envía un solo paquete TCP SYN (-S -c 1) al puerto 80 (-p 80) que incluye un payload con los datos del archivo "info.txt". 
+  Las opciones -d $(stat -c%s info.txt) ajustan el tamaño del payload al tamaño del archivo, y -E info.txt especifica el archivo de datos a usar.   
+
+- nmap -sU 192.168.1.1: Este comando se utilizó para realizar un escaneo UDP, revelando que el puerto 53 estaba abierto, 
+  lo que resolvió la discrepancia de por qué hping3 no había recibido respuestas.   
