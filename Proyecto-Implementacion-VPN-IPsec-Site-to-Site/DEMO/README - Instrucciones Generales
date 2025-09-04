@@ -1,0 +1,81 @@
+INTRUCCIONES GENERALES PARA LA REALIZACIÓN DE LA TOPOLOGÍA:
+
+A.     Implementación en Capa 3:
+ 
+·        La topología y equipos finales correspondiente se encuentran direccionado con IPv4.
+·        Implementar Protocolo de Enrutamiento de Estado de Enlace, usando área de backbone. Configurar interfaces pasivas correspondiente.
+·        Implementar autenticación de protocolo de enrutamiento a nivel de interfaz.
+ 
+B.     Implementación en Capa 2:
+ 
+·        Realizar configuración correspondiente para que las interfaces de los SW no queden asignadas en la VLAN1, además que estas estén apagadas.
+·        En interfaces correspondientes implementar seguridad de puerto por aprendizaje con un máximo de 2 direcciones MAC, además que en caso de exceder la interfaz debe desactivarse.
+·        En interfaces correspondientes, implementar mecanismos de estabilización de STP.
+
+·        En equipo apropiado implementar DHCP Snooping y mecanismo para evitar el ataque de hambruna, permitiendo solo 2 IP por minuto.
+ 
+C.      Implementación de Seguridad:
+ 
+·        En Firewall ASA, definir los nombres de las zonas. Los niveles de seguridad serán los siguientes: Para la Zona Inside el nivel de seguridad será el máximo permitido, para la DMZ será el 40% de la zona Inside, y para la zona Outside será la mitad de la DMZ.
+·        Implementar pool de DHCP para proporcionar IP de forma dinámica a zona inside. El número máximo de IPv4 serán 16.
+·        Implementar PAT para que Inside pueda salir por zona Outside, no olvidando implementar MPF para permitir el paso del ICMP.
+·        Permitir que en PC-DMZ pueda salir por NAT Estático hacia Outside. Utilizar IP a elección de dicho segmento de red. Realizar configuraciones pertinentes para permitir el retorno del ICMP hacia la DMZ.
+·        Permitir que el servidor SERVICIOS pueda acceder por Telnet hacia ASA.
+·        Implementar VPN Site to Site entre RA y RC (Realizar pruebas que validen su funcionamiento)
+
+Si bien, en el documento "Explicacion-Paso-a-Paso-VPN-Site-to-Site.pdf" tenemos el detalle y los comandos para validación, nos centraremos
+especialmente en la Implementación de VPN IPSec Site-to-Site entre routers RA y RC.
+
+=============================== Configuración VPN IPsec Site-to-Site ===============================
+
+Router RA
+
+license boot module c1900 technology-package securityk9 - Habilitación paquete seguridad
+access-list 110 permit ip 172.16.10.0 0.0.0.255 172.16.250.0 0.0.0.255 - Trafico interesante de RA a RC
+
+crypto isakmp policy 10 - ISAKMP POLICY Parte 1
+encryption aes 256
+authentication pre-share 
+group 5
+exit
+crypto isakmp key vpnpa55 address 172.16.200.1
+
+crypto ipsec transform-set VPN-SET esp-aes esp-sha-hmac - ISAKMP POLICY Parte 2
+crypto map VPN-MAP 10 ipsec-isakmp
+description Conexión VPN hacia RC
+set peer 172.16.200.1
+set transform-set VPN-SET
+match address 110
+exit
+
+int s0/0/0            - Configuración crypto map en la interfaz de salida
+crypto map VPN-MAP
+_________________________________________
+Router RC
+
+license boot module c1900 technology-package securityk9 - Habilitación paquete seguridad
+access-list 110 permit ip 172.16.250.0 0.0.0.255 172.16.10.0 0.0.0.255 - Trafico interesante de RC a RA
+
+crypto isakmp policy 10 - ISAKMP POLICY Parte 1
+encryption aes 256
+authentication pre-share 
+group 5
+exit
+crypto isakmp key vpnpa55 address 172.16.100.1
+
+crypto ipsec transform-set VPN-SET esp-aes esp-sha-hmac - ISAKMP POLICY Parte 2
+crypto map VPN-MAP 10 ipsec-isakmp
+description Conexión VPN hacia RA
+set peer 172.16.100.1
+set transform-set VPN-SET
+match address 110
+exit
+
+int s0/0/1             - Configuración crypto map en la interfaz de salida 
+crypto map VPN-MAP
+=============================================================================================
+VERIFICACION
+show crypto ipsec sa en R1 - Antes de que haya tráfico - El numero de paquetes es O
+Ping de PC-A a PC-C - Generación de trafico interesante
+show crypto ipsec sa en R1 - El numero de paquetes encapsulados/desencapsulados debe ser mayor que 0
+=========================================================================================================================================
