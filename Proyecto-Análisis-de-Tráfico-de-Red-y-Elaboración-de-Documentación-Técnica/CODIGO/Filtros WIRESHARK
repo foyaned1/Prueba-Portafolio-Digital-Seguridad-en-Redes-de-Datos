@@ -1,0 +1,13 @@
+Para la captura de tráfico, los filtros utilizados en Wireshark son:
+- http : Filtra tráfico HTTP. 
+         Se obtuvo un login de sesión en texto plano, dejando en claro que es un protocolo inseguro y potencialmente vulnerable.
+
+- dns  : Filtra consultas DNS.
+         En el detalle se puede ver la transición de URL a dirección IP y viceversa.
+
+- ip.src==[dirección IP] : Filtra todo el tráfico proveniente de la dirección IP de origen señalada.
+
+- tcp.port==443 : Tráfico HTTPS.
+                  Se observan protocolos de encriptación como TLSv1.2.
+
+- icmp : Tráfico ICMP
